@@ -32,12 +32,22 @@ import (
 // NewProbeRequest returns an http.Request suitable for use as a request for a
 // probe.
 func NewProbeRequest(url *url.URL, headers http.Header) (*http.Request, error) {
-	return newProbeRequest(url, headers, "probe")
+	return newProbeRequest(url, headers, "probe", "GET")
 }
 
 // NewRequestForHTTPGetAction returns an http.Request derived from httpGet.
 // When httpGet.Host is empty, podIP will be used instead.
-func NewRequestForHTTPGetAction(httpGet *v1.HTTPGetAction, container *v1.Container, podIP string, userAgentFragment string) (*http.Request, error) {
+func NewRequestForHTTPGetAction(httpGet *v1.HTTPGetAction, container *v1.Container, podIP, userAgentFragment string) (*http.Request, error) {
+	return newRequestForHTTPAction(httpGet, container, podIP, userAgentFragment, "GET")
+}
+
+// NewRequestForHTTPHeadAction returns an http.Request derived from httpHead.
+// When httpHead.Host is empty, podIP will be used instead.
+func NewRequestForHTTPHeadAction(httpGet *v1.HTTPGetAction, container *v1.Container, podIP, userAgentFragment string) (*http.Request, error) {
+	return newRequestForHTTPAction(httpGet, container, podIP, userAgentFragment, "HEAD")
+}
+
+func newRequestForHTTPAction(httpGet *v1.HTTPGetAction, container *v1.Container, podIP, userAgentFragment, requestMethod string) (*http.Request, error) {
 	scheme := strings.ToLower(string(httpGet.Scheme))
 	if scheme == "" {
 		scheme = "http"
@@ -57,11 +67,11 @@ func NewRequestForHTTPGetAction(httpGet *v1.HTTPGetAction, container *v1.Contain
 	url := formatURL(scheme, host, port, path)
 	headers := v1HeaderToHTTPHeader(httpGet.HTTPHeaders)
 
-	return newProbeRequest(url, headers, userAgentFragment)
+	return newProbeRequest(url, headers, userAgentFragment, requestMethod)
 }
 
-func newProbeRequest(url *url.URL, headers http.Header, userAgentFragment string) (*http.Request, error) {
-	req, err := http.NewRequest("GET", url.String(), nil)
+func newProbeRequest(url *url.URL, headers http.Header, userAgentFragment, requestMethod string) (*http.Request, error) {
+	req, err := http.NewRequest(requestMethod, url.String(), nil)
 	if err != nil {
 		return nil, err
 	}

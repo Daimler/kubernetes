@@ -151,7 +151,22 @@ func (pb *prober) runProbe(ctx context.Context, probeType probeType, p *v1.Probe
 			path := req.URL.Path
 			scheme := req.URL.Scheme
 			headers := p.HTTPGet.HTTPHeaders
-			klogV4.InfoS("HTTP-Probe", "scheme", scheme, "host", host, "port", port, "path", path, "timeout", timeout, "headers", headers)
+			klogV4.InfoS("HTTP-Get-Probe", "scheme", scheme, "host", host, "port", port, "path", path, "timeout", timeout, "headers", headers)
+		}
+		return pb.http.Probe(req, timeout)
+	}
+	if p.HTTPHead != nil {
+		req, err := httpprobe.NewRequestForHTTPHeadAction(p.HTTPHead, &container, status.PodIP, "probe")
+		if err != nil {
+			return probe.Unknown, "", err
+		}
+		if klogV4 := klog.V(4); klogV4.Enabled() {
+			port := req.URL.Port()
+			host := req.URL.Hostname()
+			path := req.URL.Path
+			scheme := req.URL.Scheme
+			headers := p.HTTPHead.HTTPHeaders
+			klogV4.InfoS("HTTP-Head-Probe", "scheme", scheme, "host", host, "port", port, "path", path, "timeout", timeout, "headers", headers)
 		}
 		return pb.http.Probe(req, timeout)
 	}

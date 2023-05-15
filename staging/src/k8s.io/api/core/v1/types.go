@@ -2545,6 +2545,9 @@ type ProbeHandler struct {
 	// HTTPGet specifies the http request to perform.
 	// +optional
 	HTTPGet *HTTPGetAction `json:"httpGet,omitempty" protobuf:"bytes,2,opt,name=httpGet"`
+	// HTTPHead specifies the http request to perform.
+	// +optional
+	HTTPHead *HTTPGetAction `json:"httpHead,omitempty" protobuf:"bytes,2,opt,name=httpHead"`
 	// TCPSocket specifies an action involving a TCP port.
 	// +optional
 	TCPSocket *TCPSocketAction `json:"tcpSocket,omitempty" protobuf:"bytes,3,opt,name=tcpSocket"`
